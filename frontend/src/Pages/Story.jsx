@@ -12,6 +12,7 @@ function Story() {
   const { storyData } = useSelector((state) => state.story);
 
   const handlestory = async () => {
+    dispatch(setstoryData());
     try {
       const response = await axios.get(
         `${serverUrl}/api/story/getbyusername/${username}`,
@@ -29,7 +30,7 @@ function Story() {
   }, [username]);
   return (
     <div className="w-full h-[100vh] bg-black flex justify-center items-center">
-      <Storypage />
+      <Storypage storyData={storyData} />
     </div>
   );
 }

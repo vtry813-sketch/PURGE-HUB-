@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import logo from "../assets/logo2.png";
-import { FaRegHeart } from "react-icons/fa6";
+import { RiPokerHeartsLine } from "react-icons/ri";
 import dp from "../assets/dp.webp";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -8,13 +8,21 @@ import { serverUrl } from "../App";
 import { setuserData } from "../redux/UserSlice";
 import Otherusers from "./Otherusers";
 import { useNavigate } from "react-router-dom";
+import Notification from "../Pages/Notification";
+
 function Lefthome() {
   const navigate = useNavigate();
-  const { userData, suggestedusers } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+
+  const { userData, suggestedusers, notificationdata } = useSelector(
+    (state) => state.user
+  );
+
+  const [shownotification, setshownotification] = useState(false);
+
   const handlelogout = async () => {
     try {
-      const response = await axios.get(`${serverUrl}/api/auth/signout`, {
+      await axios.get(`${serverUrl}/api/auth/signout`, {
         withCredentials: true,
       });
       dispatch(setuserData(null));
@@ -22,45 +30,85 @@ function Lefthome() {
       console.log(error);
     }
   };
+
   return (
-    <div className="w-[25%] hidden lg:block min-h-[100vh] bg-[black] border-r-2 border-gray-900">
-      <div className="w-full h-[100px] flex items-center justify-between p-[20px]">
-        <img src={logo} className="w-[80px]" />
-        <div>
-          <FaRegHeart className="text-[white] w-[25px] h-[25px]" />
+    <div className="w-[25%] hidden lg:flex flex-col h-[100vh] bg-black border-r-2 border-gray-900">
+      {/* ================= STICKY TOP ================= */}
+      <div className="sticky top-0 z-50 bg-black">
+        {/* Header */}
+        <div className="w-full h-[100px] flex items-center justify-between p-[20px]">
+          <img src={logo} className="w-[80px]" alt="logo" />
+
+          <div className="relative cursor-pointer">
+            <RiPokerHeartsLine
+              onClick={() => setshownotification((prev) => !prev)}
+              className="text-white w-[25px] h-[25px]"
+            />
+
+            {notificationdata?.length > 0 &&
+              notificationdata.some((noti) => noti.isRead === false) && (
+                <span
+                  className="absolute -top-0.5 -right-1
+                  w-[10px] h-[10px]
+                  bg-gradient-to-r from-red-500 to-pink-500
+                  rounded-full"
+                />
+              )}
+          </div>
         </div>
+
+        {/* Profile */}
+        <div className="flex items-center gap-[10px] justify-between px-[10px] pb-3">
+          <div className="flex items-center gap-[10px]">
+            <div
+              onClick={() => navigate(`/profile/${userData?.username}`)}
+              className="cursor-pointer"
+            >
+              <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600">
+                <div className="w-[50px] h-[50px] rounded-full overflow-hidden bg-black">
+                  <img
+                    src={userData?.profileImage || dp}
+                    alt="profile"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[18px] text-white font-semibold">
+                {userData?.username}
+              </div>
+              <div className="text-[13px] text-gray-400">{userData?.name}</div>
+            </div>
+          </div>
+
+          <span
+            onClick={handlelogout}
+            className="text-blue-500 font-semibold cursor-pointer"
+          >
+            Log Out
+          </span>
+        </div>
+
+        <div className="bg-gradient-to-r from-transparent via-gray-700 to-transparent h-[2px] w-full" />
       </div>
 
-      <div className="flex items-center gap-[10px] justify-between px-[10px] ">
-        <div className="flex items-center gap-[10px]">
-          <div className="w-[50px] h-[50px] rounded-full border border-black cursor-pointer overflow-hidden ">
-            <img
-              onClick={() => navigate(`/profile/${userData.username}`)}
-              src={userData.profileImage || dp}
-              className="w-full object-cover"
-            />
+      {/* ================= SCROLLABLE CONTENT ================= */}
+      <div className="flex-1 overflow-y-auto">
+        {!shownotification && (
+          <div className="w-full flex flex-col gap-[20px] p-[20px]">
+            <h1 className="text-white font-semibold md:text-transparent md:bg-clip-text md:bg-[linear-gradient(to_left,_#a855f7,_#ec4899,_#ef4444,_#facc15)]">
+              Suggested for You
+            </h1>
+
+            {suggestedusers?.slice(0, 6).map((user) => (
+              <Otherusers key={user._id} user={user} />
+            ))}
           </div>
-          <div>
-            <div className="text-[18px] text-white w-full  font-semibold">
-              {userData.username}
-            </div>
-            <div className="text-[13px] text-gray-400 ">{userData.name}</div>
-          </div>
-        </div>
-        <div
-          className="text-blue-500 font-semibold cursor-pointer"
-          onClick={handlelogout}
-        >
-          Log Out
-        </div>
-      </div>
-      <div className="bg-gradient-to-r from-transparent via-gray-700  to-transparent h-[2px] w-full mt-[10px]" />
-      <div className="w-full flex flex-col gap-[20px] p-[20px] ">
-        <h1 className="text-white font-semibold ">Suggested Users</h1>
-        {suggestedusers &&
-          suggestedusers
-            .slice(0, 4)
-            .map((user, index) => <Otherusers key={index} user={user} />)}
+        )}
+
+        {shownotification && <Notification />}
       </div>
     </div>
   );

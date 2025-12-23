@@ -16,7 +16,10 @@ function Nav() {
         <AiFillHome className="text-white  w-[20px] h-[20px] lg:w-[25px] lg:h-[25px] cursor-pointer" />
       </div>
       <div>
-        <FaSearch className="text-white  w-[20px] h-[20px] lg:w-[25px] lg:h-[25px] cursor-pointer" />
+        <FaSearch
+          onClick={() => navigate("/search")}
+          className="text-white  w-[20px] h-[20px] lg:w-[25px] lg:h-[25px] cursor-pointer"
+        />
       </div>
       <div>
         <FaPlusSquare
@@ -34,7 +37,7 @@ function Nav() {
         <div className="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] cursor-pointer rounded-full border border-black cursor-pointer overflow-hidden ">
           <img
             src={userData.profileImage || dp}
-            className="w-full object-cover"
+            className="w-full h-full object-cover"
             onClick={() => navigate(`/profile/${userData.username}`)}
           />
         </div>

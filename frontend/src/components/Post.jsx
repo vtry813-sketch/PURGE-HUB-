@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import dp from "../assets/dp.webp";
 import { useNavigate } from "react-router-dom";
 import Videoplayer from "./Videoplayer";
@@ -29,6 +29,7 @@ function Post({ post }) {
   const [showFullCaption, setShowFullCaption] = useState(false);
   const videoref = useRef(null);
 
+  const { socket } = useSelector((state) => state.socket);
   const handlelike = async () => {
     try {
       const response = await axios.get(
@@ -78,6 +79,14 @@ function Post({ post }) {
     }
   };
 
+  const stopAllVideos = () => {
+    const videos = document.querySelectorAll("video");
+    videos.forEach((v) => {
+      v.pause();
+      v.muted = true;
+    });
+  };
+
   const handleremove = async () => {
     const sure = window.confirm("Are you sure you want to delete this post?");
     if (!sure) return;
@@ -88,10 +97,28 @@ function Post({ post }) {
       });
 
       dispatch(removePost(post._id));
+      stopAllVideos();
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    socket.on("likedpost", (updatedData) => {
+      const updatedposts = postData.map((p) =>
+        p._id == updatedData.postId ? { ...p, likes: updatedData.likes } : p
+      );
+      dispatch(setpostData(updatedposts));
+    });
+    socket.on("comment", (updatedData) => {
+      const updatedposts = postData.map((p) =>
+        p._id == updatedData.postId
+          ? { ...p, comments: updatedData.comments }
+          : p
+      );
+      dispatch(setpostData(updatedposts));
+    });
+  }, []);
 
   return (
     <div className="w-[95%] min-h-auto flex flex-col gap-[10px] bg-white shadow-[#00000058] items-center shadow-2xl rounded-[30px] md:rounded-[40px]">

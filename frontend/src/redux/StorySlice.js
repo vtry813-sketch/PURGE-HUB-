@@ -4,6 +4,7 @@ const storySlice = createSlice({
   name: "story",
   initialState: {
     storyData: null,  
+    storyList:[],
   },
   reducers: {
     setstoryData: (state, action) => {
@@ -11,9 +12,12 @@ const storySlice = createSlice({
     },
     removestory: (state) => {
       state.storyData = null;  
-    }
+    },
+    setstorylist: (state, action) => {
+     state.storyList=action.payload
+   }
   }
 });
 
-export const { setstoryData, removestory } = storySlice.actions;
+export const { setstoryData, removestory ,setstorylist} = storySlice.actions;
 export default storySlice.reducer;

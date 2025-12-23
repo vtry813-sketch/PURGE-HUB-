@@ -68,3 +68,33 @@ export const getstorybyusername = async (req, res) => {
     }
 }
 
+export const deletestory = async (req, res) => {
+    try {
+        const story = await Story.findById(req.params.storyId)
+        if(!story){
+            return res.status(400).json({message:"no stpry found"})
+        }
+        await Story.findByIdAndDelete(req.params.storyId)
+        await User.updateOne(
+            { story: req.params.storyId },
+            {$set:{story:null}}
+        )
+        res.json({message:"story delete"})
+    } catch (error) {
+        return res.status(500).json({message:"story delete error"})
+    }
+}
+
+
+export const getallstory = async (req, res) => {
+    try {
+        const currentuser = await User.findById(req.userId)
+        const followingid = currentuser.following
+        const stories = await Story.find({
+            author:{$in:followingid}
+        }).populate("author viewers").sort({ createdAt: -1 })
+        return res.status(200).json(stories)
+    } catch (error) {
+        return res.status(500).json({message:"get all story error"})
+    }
+}

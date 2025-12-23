@@ -17,6 +17,7 @@ import { BiSolidVideos } from "react-icons/bi";
 import Loops from "./Loops";
 import Loopcard from "../components/Loopcard";
 import { FaPlusSquare } from "react-icons/fa";
+import { setselecteduser } from "../redux/MessageSlice";
 
 function Profile() {
   const [showphoto, setshowphoto] = useState(false);
@@ -34,6 +35,7 @@ function Profile() {
         { withCredentials: true }
       );
       dispatch(setprofiledata(response.data));
+      // console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -114,8 +116,7 @@ function Profile() {
               {profiledata?.profession || "new user"}
             </div>
             <div className="text-[12px] lg:text-[14px] text-[#ffffffe8] break-words max-w-[220px] lg:max-w-[600px]">
-              {profiledata?.bio ||
-                "bi000vvvvvvvokkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkvvvv0000"}
+              {profiledata?.bio || "Add Bio"}
             </div>
           </div>
         </div>
@@ -168,7 +169,7 @@ function Profile() {
               {/* Stacked following images */}
               <div className="flex relative">
                 {profiledata?.following
-                  ?.slice(-3)
+                  ?.slice(-2)
                   .reverse()
                   .map((user, index) => (
                     <div
@@ -198,7 +199,7 @@ function Profile() {
           </div>
         </div>
 
-        <div className="w-full h-[80px] mt-[-50px] lg:mt-[5px] flex justify-center items-center gap-[20px]">
+        <div className="w-full h-[80px] mt-[-50px] md:mt-[5px] flex justify-center items-center gap-[20px]">
           {profiledata?._id == userData._id && (
             <button
               onClick={() => navigate("/editprofile")}
@@ -217,7 +218,13 @@ function Profile() {
                 }
               />
 
-              <button className="px-[10px] min-w-[130px] lg:min-w-[170px] py-[3px] md:py-[5px]  h-[35px] md:h-[40px] bg-white cursor-pointer rounded-2xl hover:bg-[linear-gradient(to_left,_#a855f7,_#ec4899,_#ef4444,_#facc15)] hover:text-white">
+              <button
+                onClick={() => {
+                  dispatch(setselecteduser(profiledata));
+                  navigate("/textarea");
+                }}
+                className="px-[10px] min-w-[130px] lg:min-w-[170px] py-[3px] md:py-[5px]  h-[35px] md:h-[40px] bg-white cursor-pointer rounded-2xl hover:bg-[linear-gradient(to_left,_#a855f7,_#ec4899,_#ef4444,_#facc15)] hover:text-white"
+              >
                 Message
               </button>
             </>
@@ -297,9 +304,10 @@ function Profile() {
 
                 {/* SAVED POSTS */}
                 {type === "save" &&
-                  (userData.savedpost.length === 0 ? (
+                  (userData.savedpost.length === 0 &&
+                  userData.savedloop.length === 0 ? (
                     <p className="text-center text-neutral-400 mt-10">
-                      No saved posts yet.
+                      No saved posts or loops yet.
                     </p>
                   ) : (
                     postData

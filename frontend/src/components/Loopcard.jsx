@@ -31,6 +31,7 @@ function Loopcard({ loop }) {
   const [showFullCaption, setShowFullCaption] = useState(false);
   const [showcomment, setshowcomment] = useState(false);
   const [message, setmessage] = useState("");
+  const { socket } = useSelector((state) => state.socket);
 
   const handlevideo = () => {
     if (playing) {
@@ -41,6 +42,11 @@ function Loopcard({ loop }) {
       setplaying(true);
     }
   };
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -70,6 +76,14 @@ function Loopcard({ loop }) {
     return () => v.removeEventListener("timeupdate", updateProgress);
   }, []);
 
+  const stopAllVideos = () => {
+    const videos = document.querySelectorAll("video");
+    videos.forEach((v) => {
+      v.pause();
+      v.muted = true;
+    });
+  };
+
   const handleremove = async () => {
     const sure = window.confirm("Are you sure you want to delete this post?");
     if (!sure) return;
@@ -79,6 +93,7 @@ function Loopcard({ loop }) {
     });
 
     dispatch(removeLoop(loop._id));
+    stopAllVideos();
   };
 
   const handlelike = async () => {
@@ -137,6 +152,23 @@ function Loopcard({ loop }) {
     link.click();
     document.body.removeChild(link);
   };
+
+  useEffect(() => {
+    socket.on("likedloop", (updatedData) => {
+      const updatedloop = loopData.map((p) =>
+        p._id == updatedData.loopId ? { ...p, likes: updatedData.likes } : p
+      );
+      dispatch(setloopData(updatedloop));
+    });
+    socket.on("loopcomment", (updatedData) => {
+      const updatedloop = loopData.map((p) =>
+        p._id == updatedData.loopId
+          ? { ...p, comments: updatedData.comments }
+          : p
+      );
+      dispatch(setloopData(updatedloop));
+    });
+  }, [loopData]);
 
   return (
     <div className="relative w-full h-screen flex justify-center items-center lg:w-[480px]">
@@ -284,7 +316,7 @@ function Loopcard({ loop }) {
                   />
                   <IoSend
                     onClick={handlecomment}
-                    className="text-blue-500 w-5 h-5 ml-2"
+                    className="text-blue-500 w-5 h-5 ml-2 cursor-pointer"
                   />
                 </div>
               </div>

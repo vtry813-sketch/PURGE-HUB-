@@ -1,17 +1,51 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dp from "../assets/dp.webp";
 import { HiPlusSm } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import axios from "axios";
+import { serverUrl } from "../App";
 function Storycard({ profileImage, username, story }) {
   const navigate = useNavigate();
   const { userData } = useSelector((state) => state.user);
+  const { storyData, storyList } = useSelector((state) => state.story);
+  const [viewed, setviewed] = useState(false);
+
+  useEffect(() => {
+    if (
+      story?.viewers?.some(
+        (viewer) =>
+          viewer?._id?.toString() === userData?._id?.toString() ||
+          viewer?.toString() == userData._id?.toString()
+      )
+    ) {
+      setviewed(true);
+    } else {
+      setviewed(false);
+    }
+  }, [story, userData, storyList, storyData]);
+
+  const handleviewers = async () => {
+    try {
+      const response = await axios.get(
+        `${serverUrl}/api/story/view/${story._id}`,
+        { withCredentials: true }
+      );
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleClick = () => {
     if (!story && username.toLowerCase() === "your story") {
       navigate("/upload");
     } else if (story && username.toLowerCase() === "your story") {
+      handleviewers();
       navigate(`/story/${userData.username}`);
+    } else {
+      handleviewers();
+      navigate(`/story/${username}`);
     }
   };
   return (
@@ -19,9 +53,11 @@ function Storycard({ profileImage, username, story }) {
       <div
         onClick={handleClick}
         className={`w-[76px] h-[76px] ${
-          story
+          !story
+            ? null
+            : !viewed
             ? "bg-[linear-gradient(to_left,_#a855f7,_#ec4899,_#ef4444,_#facc15)]"
-            : "bg-white/10"
+            : "bg-white/50"
         }  rounded-full p-[3px] flex items-center justify-center relative`}
       >
         <div className="w-[68px] h-[68px] bg-black rounded-full overflow-hidden cursor-pointer">
@@ -40,7 +76,7 @@ function Storycard({ profileImage, username, story }) {
       </div>
 
       {/* Username text */}
-      <div className="text-white text-[13px] font-medium truncate w-[80px] text-center cursor-pointer">
+      <div className="text-white text-[13px] font-light truncate w-[80px] text-center cursor-pointer">
         {username || "Username"}
       </div>
     </div>

@@ -26,11 +26,11 @@ const storySchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now(),
-        expire:86400
+       
     },
 
 }, { timestamps: true })
-
+storySchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
 const Story = mongoose.model("Story", storySchema)
 
 export default Story;

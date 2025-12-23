@@ -62,6 +62,13 @@ function Upload() {
     }
   };
 
+  const stopAllVideos = () => {
+    const videos = document.querySelectorAll("video");
+    videos.forEach((v) => {
+      v.pause();
+      v.muted = true;
+    });
+  };
   const uploadstory = async () => {
     setloading(true);
     try {
@@ -73,10 +80,15 @@ function Upload() {
         formdata,
         { withCredentials: true }
       );
-      setuserData((prev) => ({ ...prev, story: response.data }));
+
+      dispatch(setstoryData(response.data));
+      //setuserData((prev) => ({ ...prev, story: response.data }));
       console.log(response);
       setloading(false);
+      stopAllVideos();
       navigate("/");
+
+      //window.location.href = "/";
     } catch (error) {
       console.log(error);
       setloading(false);
@@ -116,6 +128,7 @@ function Upload() {
 
   const handlecancel = () => {
     setfrontendMedia(null);
+    setbackendMedia(null);
   };
   return (
     <div className="relative w-full min-h-screen bg-white">

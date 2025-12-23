@@ -14,6 +14,11 @@ function Videoplayer({ media, mute, videoref }) {
       setplaying(true);
     }
   };
+  useEffect(() => {
+    if (videoref.current) {
+      videoref.current.pause();
+    }
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -26,7 +31,7 @@ function Videoplayer({ media, mute, videoref }) {
           videoref.current.pause();
         }
       },
-      { threshold: 0.8 }
+      { threshold: 1 }
     );
 
     const currentVideo = videoref.current;

@@ -7,6 +7,7 @@ import { setfollowing, setuserData } from "../redux/UserSlice";
 function Getcurrentuser() {
   const dispatch = useDispatch();
   const { storyData } = useSelector((state) => state.story);
+
   useEffect(() => {
     const fetchuser = async () => {
       try {
@@ -14,7 +15,6 @@ function Getcurrentuser() {
           withCredentials: true,
         });
         dispatch(setuserData(response.data));
-        dispatch(setfollowing(response.data.following));
 
         console.log(response);
       } catch (error) {
