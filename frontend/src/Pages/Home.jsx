@@ -1,6 +1,6 @@
 import React from "react";
 import Lefthome from "../components/Lefthome";
-import Righthome from "../Components/Righthome";
+import Righthome from "../components/Righthome";
 import Feed from "../components/Feed";
 
 function Home() {
