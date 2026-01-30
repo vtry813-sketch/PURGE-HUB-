@@ -18,7 +18,7 @@ const port = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: "https://vybee.onrender.com",
+    origin: "https://purge-hub.onrender.com",
     credentials: true,
   })
 );
