@@ -6,7 +6,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://vybee.onrender.com",
+    origin: "https://purge-hub.onrender.com",
     methods: ["GET", "POST"],
   },
 });
